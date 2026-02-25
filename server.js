@@ -69,26 +69,47 @@ app.post("/criar-pagamento", async (req, res) => {
 // =============================
 // WEBHOOK (CONFIRMA PAGAMENTO)
 // =============================
+const { Payment } = require("mercadopago");
+
 app.post("/webhook", async (req, res) => {
 
   try {
 
     console.log("🔔 Webhook recebido:");
-    console.log(JSON.stringify(req.body, null, 2));
+    console.log(req.body);
 
-    // Mercado Pago envia vários eventos
+    // verifica se é evento de pagamento
     if (req.body.type === "payment") {
-      console.log("💰 Evento de pagamento recebido!");
+
+      const paymentId = req.body.data.id;
+
+      const payment = new Payment(client);
+
+      // busca pagamento real na API
+      const paymentInfo = await payment.get({
+        id: paymentId
+      });
+
+      console.log("Status do pagamento:", paymentInfo.status);
+
+      // ✅ PAGAMENTO APROVADO
+      if (paymentInfo.status === "approved") {
+
+        console.log("✅ PAGAMENTO APROVADO!");
+
+        // 👉 AQUI vamos liberar o grupo depois
+      }
     }
 
     res.sendStatus(200);
 
   } catch (error) {
-    console.log("Erro no webhook:", error);
+    console.log("Erro webhook:", error);
     res.sendStatus(500);
   }
 });
-
+// =============================
+// INICIAR SERVIDOR
 // =============================
 app.listen(3000, () => {
   console.log("Servidor rodando em http://localhost:3000");

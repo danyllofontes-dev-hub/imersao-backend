@@ -139,7 +139,7 @@ canvas.height = window.innerHeight;
 async function pagar() {
   try {
 
-    const res = await fetch("/criar-pagamento", {
+    const res = await fetch("https://imersao-backend.onrender.com/criar-pagamento", {
       method: "POST"
     });
 

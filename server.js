@@ -1,11 +1,14 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+
 const {
   MercadoPagoConfig,
   Preference,
   Payment
 } = require("mercadopago");
+
+const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
 
@@ -19,6 +22,14 @@ const client = new MercadoPagoConfig({
   accessToken:
     "APP_USR-3678280078464153-022416-b7b770deef907132313977cae0a3d6f8-1889126294"
 });
+
+// =============================
+// SUPABASE CONFIG
+// =============================
+const supabase = createClient(
+  "https://orrrvsamxgadkmrteoke.supabase.co",
+  "sb_publishable_t_jxcR0uQS2WsXEMnMnIkQ_XsnMhQIK"
+);
 
 // =============================
 // CRIAR PAGAMENTO
@@ -36,7 +47,7 @@ app.post("/criar-pagamento", async (req, res) => {
             title: "Imersão Do Zero ao Videomaker",
             quantity: 1,
             currency_id: "BRL",
-            unit_price: 1 // teste
+            unit_price: 1
           }
         ],
 
@@ -101,9 +112,34 @@ app.post("/webhook", async (req, res) => {
 
         console.log("✅ PAGAMENTO APROVADO!");
 
+        const email = paymentInfo.payer.email;
+        const valor = paymentInfo.transaction_amount;
+
+        // =============================
+        // SALVAR NO SUPABASE
+        // =============================
+        const { data, error } = await supabase
+          .from("pagamentos")
+          .insert([
+            {
+              payment_id: paymentId,
+              status: "approved",
+              email: email,
+              valor: valor
+            }
+          ]);
+
+        if (error) {
+          console.log("❌ Erro Supabase:", error);
+        } else {
+          console.log("✅ Salvo no Supabase!");
+        }
+
+        // =============================
+        // BACKUP LOCAL (JSON)
+        // =============================
         const filePath = "pagamentos.json";
 
-        // cria arquivo se não existir
         if (!fs.existsSync(filePath)) {
           fs.writeFileSync(filePath, "[]");
         }
@@ -112,7 +148,6 @@ app.post("/webhook", async (req, res) => {
           fs.readFileSync(filePath)
         );
 
-        // evita salvar duplicado
         const jaExiste = pagamentos.find(
           p => p.id === paymentId
         );
@@ -121,6 +156,8 @@ app.post("/webhook", async (req, res) => {
 
           pagamentos.push({
             id: paymentId,
+            email,
+            valor,
             date: new Date()
           });
 
@@ -129,9 +166,7 @@ app.post("/webhook", async (req, res) => {
             JSON.stringify(pagamentos, null, 2)
           );
 
-          console.log("💾 Pagamento salvo!");
-        } else {
-          console.log("⚠️ Pagamento já registrado");
+          console.log("💾 Backup local salvo!");
         }
       }
     }

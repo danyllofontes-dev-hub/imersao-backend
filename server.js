@@ -109,6 +109,28 @@ app.post("/webhook", async (req, res) => {
   }
 });
 // =============================
+// VER PAGAMENTOS (TESTE)
+// =============================
+app.get("/pagamentos", (req, res) => {
+
+  try {
+
+    if (!fs.existsSync("pagamentos.json")) {
+      return res.json([]);
+    }
+
+    const pagamentos = JSON.parse(
+      fs.readFileSync("pagamentos.json")
+    );
+
+    res.json(pagamentos);
+
+  } catch (error) {
+    res.status(500).send("Erro ao ler pagamentos");
+  }
+
+});
+// =============================
 // INICIAR SERVIDOR
 // =============================
 app.listen(3000, () => {

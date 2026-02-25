@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Do Zero ao Videomaker - Imersão Twoframes</title>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+<div class="hero-overlay"></div>
+
+<div class="hero-content">
+<p class="subtitle">
+<span class="date-badge">
+📅 22 e 29 de Março às 08:00
+</span>
+</p>
+<h1 class="title">DO ZERO AO VIDEOMAKER</h1>
+<h2 class="hero-call">
+20 horas de aulas para te tirar do zero e te transformar
+em um contador de histórias profissional através dos vídeos.
+</h2>
+
+<a href="#checkout" class="cta-btn">QUERO MINHA VAGA</a>
+</div>
+
+<div class="hero-image">
+<img src="assets/principal.jpg" alt="Foto Principal">
+</div>
+</section>
+
+<!-- O QUE É -->
+<section class="about reveal">
+<h2 class="titulo-verde">O que é a Imersão?</h2>
+<p>
+Participe da primeira Imersão Twoframes: dois dias intensivos onde você aprende, na prática, tudo o que precisa para dominar o universo do audiovisual.
+
+Mesmo que hoje você esteja no absoluto zero, ao final da imersão você terá clareza, direção e habilidade para começar sua jornada como videomaker, editor ou criador de conteúdo.
+
+Você vai aprender a criar vídeos estratégicos para você, para seus clientes ou para o seu próprio negócio e transformar essa habilidade em oportunidade, renda e crescimento.
+
+Porque dominar o vídeo não é apenas aprender a editar.
+É acelerar o caminho entre onde você está hoje e os seus sonhos.
+</p>
+</section>
+
+<!-- O QUE VOCÊ VAI APRENDER -->
+<section class="learn">
+<div class="learn-container">
+
+<div class="learn-image reveal">
+<img src="assets/IMG_7096.HEIC" alt="Foto Celular Vertical">
+</div>
+
+<div class="learn-content">
+<h2 class="titulo-verde">O que você vai aprender</h2>
+<ul>
+<li>Referências e Criatividade</li>
+<li>Roteiro e Storytelling</li>
+<li>Iluminação e Psicologia das cores</li>
+<li>Configuração de câmera</li>
+<li>Planos, enquadramentos e movimentações</li>
+<li>Equipamentos para começar</li>
+<li>CapCut completo</li>
+<li>Cor, trilha, efeitos sonoros</li>
+<li>Legendagem e transições</li>
+<li>Como conseguir clientes</li>
+<li>Precificação</li>
+</ul>
+
+</div>
+</div>
+</section>
+
+<!-- DIFERENCIAIS -->
+<section class="diferenciais">
+<h2 class="titulo-verde">Diferenciais exclusivos</h2>
+<div class="cards">
+
+<div class="card reveal">
+<h3>Comunidade Vitalícia</h3>
+<p>Grupo no WhatsApp para networking e dúvidas em tempo real.</p>
+</div>
+
+<div class="card reveal">
+<h3>Ebook Completo</h3>
+<p>Todo material das aulas disponível para download.</p>
+</div>
+
+<div class="card reveal">
+<h3>Template Notion</h3>
+<p>Organização profissional pronta para usar.</p>
+</div>
+
+<div class="card reveal">
+<h3>Lista de Equipamentos</h3>
+<p>Links inteligentes para começar com o que realmente importa.</p>
+</div>
+
+<div class="card reveal">
+<h3>Certificação Profissional</h3>
+<p>Receba um certificado oficial de conclusão para validar suas habilidades como videomaker.</p>
+</div>
+
+</div>
+</section>
+
+<!-- CHECKOUT -->
+<section id="checkout" class="checkout">
+<h2 class="titulo-verde">Garanta a sua vaga</h2>
+<div class="countdown-container">
+<div class="count-box"><span id="days"></span><p>Dias</p></div>
+<div class="count-box"><span id="hours"></span><p>Horas</p></div>
+<div class="count-box"><span id="minutes"></span><p>Min</p></div>
+<div class="count-box"><span id="seconds"></span><p>Seg</p></div>
+</div>
+
+<div class="price">
+<p class="old-price">R$ 599</p>
+<p class="new-price">R$ 149,90</p>
+<p class="warning">Restam apenas <span id="spots">40</span> vagas</p>
+</div>
+
+<div class="payment-options">
+<button class="pay-btn" onclick="pagar()">GARANTIR MINHA VAGA</button>
+</div>
+
+</section>
+
+<script src="script.js"></script>
+<canvas id="particles"></canvas>
+</body>
+</html>

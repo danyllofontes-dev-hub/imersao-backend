@@ -1,16 +1,23 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const { MercadoPagoConfig, Preference } = require("mercadopago");
+const {
+  MercadoPagoConfig,
+  Preference,
+  Payment
+} = require("mercadopago");
 
 const app = express();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// ✅ Mercado Pago config
+// =============================
+// MERCADO PAGO CONFIG
+// =============================
 const client = new MercadoPagoConfig({
-  accessToken: "APP_USR-3678280078464153-022416-b7b770deef907132313977cae0a3d6f8-1889126294"
+  accessToken:
+    "APP_USR-3678280078464153-022416-b7b770deef907132313977cae0a3d6f8-1889126294"
 });
 
 // =============================
@@ -29,7 +36,7 @@ app.post("/criar-pagamento", async (req, res) => {
             title: "Imersão Do Zero ao Videomaker",
             quantity: 1,
             currency_id: "BRL",
-            unit_price: 1 // valor teste
+            unit_price: 1 // teste
           }
         ],
 
@@ -38,7 +45,6 @@ app.post("/criar-pagamento", async (req, res) => {
           default_installments: 1
         },
 
-        // ✅ WEBHOOK PRODUÇÃO (RENDER)
         notification_url:
           "https://imersao-backend.onrender.com/webhook",
 
@@ -61,7 +67,6 @@ app.post("/criar-pagamento", async (req, res) => {
 
     console.error("ERRO MERCADO PAGO:");
     console.error(error);
-    console.error(error.cause);
 
     res.status(500).send("Erro ao criar pagamento");
   }
@@ -70,8 +75,6 @@ app.post("/criar-pagamento", async (req, res) => {
 // =============================
 // WEBHOOK (CONFIRMA PAGAMENTO)
 // =============================
-const { Payment } = require("mercadopago");
-
 app.post("/webhook", async (req, res) => {
 
   try {
@@ -79,26 +82,57 @@ app.post("/webhook", async (req, res) => {
     console.log("🔔 Webhook recebido:");
     console.log(req.body);
 
-    // verifica se é evento de pagamento
     if (req.body.type === "payment") {
 
       const paymentId = req.body.data.id;
 
       const payment = new Payment(client);
 
-      // busca pagamento real na API
       const paymentInfo = await payment.get({
         id: paymentId
       });
 
       console.log("Status do pagamento:", paymentInfo.status);
 
-      // ✅ PAGAMENTO APROVADO
+      // =============================
+      // PAGAMENTO APROVADO
+      // =============================
       if (paymentInfo.status === "approved") {
 
         console.log("✅ PAGAMENTO APROVADO!");
 
-        // 👉 AQUI vamos liberar o grupo depois
+        const filePath = "pagamentos.json";
+
+        // cria arquivo se não existir
+        if (!fs.existsSync(filePath)) {
+          fs.writeFileSync(filePath, "[]");
+        }
+
+        let pagamentos = JSON.parse(
+          fs.readFileSync(filePath)
+        );
+
+        // evita salvar duplicado
+        const jaExiste = pagamentos.find(
+          p => p.id === paymentId
+        );
+
+        if (!jaExiste) {
+
+          pagamentos.push({
+            id: paymentId,
+            date: new Date()
+          });
+
+          fs.writeFileSync(
+            filePath,
+            JSON.stringify(pagamentos, null, 2)
+          );
+
+          console.log("💾 Pagamento salvo!");
+        } else {
+          console.log("⚠️ Pagamento já registrado");
+        }
       }
     }
 
@@ -109,6 +143,7 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(500);
   }
 });
+
 // =============================
 // VER PAGAMENTOS (TESTE)
 // =============================
@@ -116,21 +151,24 @@ app.get("/pagamentos", (req, res) => {
 
   try {
 
-    if (!fs.existsSync("pagamentos.json")) {
+    const filePath = "pagamentos.json";
+
+    if (!fs.existsSync(filePath)) {
       return res.json([]);
     }
 
     const pagamentos = JSON.parse(
-      fs.readFileSync("pagamentos.json")
+      fs.readFileSync(filePath)
     );
 
     res.json(pagamentos);
 
   } catch (error) {
+    console.log(error);
     res.status(500).send("Erro ao ler pagamentos");
   }
-
 });
+
 // =============================
 // INICIAR SERVIDOR
 // =============================

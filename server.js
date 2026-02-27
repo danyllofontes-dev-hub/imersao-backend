@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // MERCADO PAGO
 // =============================
 const client = new MercadoPagoConfig({
-  accessToken: "SEU_ACCESS_TOKEN"
+  accessToken: "APP_USR-3678280078464153-022416-b7b770deef907132313977cae0a3d6f8-1889126294"
 });
 
 // =============================
@@ -22,7 +22,7 @@ const client = new MercadoPagoConfig({
 // =============================
 const supabase = createClient(
   "https://orrrvsamxgadkmrteoke.supabase.co",
-  "SUA_SERVICE_ROLE_KEY"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ycnJ2c2FteGdhZGttcnRlb2tlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjAzMTg5MiwiZXhwIjoyMDg3NjA3ODkyfQ.vQ0hevgJPGhNEggQYQNXexF8IsJcDCevPK4XxRutnkk"
 );
 
 // =============================

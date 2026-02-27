@@ -64,6 +64,7 @@ app.post("/criar-pagamento", async (req, res) => {
           failure: "https://twoframes.site",
           pending: "https://twoframes.site"
         },
+
         auto_return: "approved"
       }
     });
@@ -101,9 +102,6 @@ app.post("/webhook", async (req, res) => {
 
       console.log("Status do pagamento:", paymentInfo.status);
 
-      // =============================
-      // PAGAMENTO APROVADO
-      // =============================
       if (paymentInfo.status === "approved") {
 
         console.log("✅ PAGAMENTO APROVADO!");
@@ -111,17 +109,15 @@ app.post("/webhook", async (req, res) => {
         const email = paymentInfo.payer.email;
         const valor = paymentInfo.transaction_amount;
 
-        // =============================
         // SALVAR NO SUPABASE
-        // =============================
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from("pagamentos")
           .insert([
             {
               payment_id: paymentId,
               status: "approved",
-              email: email,
-              valor: valor
+              email,
+              valor
             }
           ]);
 
@@ -131,9 +127,7 @@ app.post("/webhook", async (req, res) => {
           console.log("✅ Salvo no Supabase!");
         }
 
-        // =============================
-        // BACKUP LOCAL (JSON)
-        // =============================
+        // BACKUP LOCAL
         const filePath = "pagamentos.json";
 
         if (!fs.existsSync(filePath)) {
@@ -176,54 +170,33 @@ app.post("/webhook", async (req, res) => {
 });
 
 // =============================
-// VER PAGAMENTOS (TESTE)
+// VERIFICAR ACESSO LIBERADO
 // =============================
-app.get("/pagamentos", (req, res) => {
+app.get("/acesso/:paymentId", async (req, res) => {
 
   try {
 
-    const filePath = "pagamentos.json";
-
-    if (!fs.existsSync(filePath)) {
-      return res.json([]);
-    }
-
-    const pagamentos = JSON.parse(
-      fs.readFileSync(filePath)
-    );
-
-    res.json(pagamentos);
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Erro ao ler pagamentos");
-  }
-});
-
-// =============================
-// VERIFICAR PAGAMENTO (FRONTEND)
-// =============================
-app.get("/verificar-pagamento/:id", async (req, res) => {
-
-  try {
-
-    const paymentId = req.params.id;
+    const paymentId = req.params.paymentId;
 
     const { data, error } = await supabase
       .from("pagamentos")
       .select("*")
       .eq("payment_id", paymentId)
+      .eq("status", "approved")
       .single();
 
     if (error || !data) {
-      return res.json({ approved: false });
+      return res.json({ acesso: false });
     }
 
-    res.json({ approved: true });
+    res.json({
+      acesso: true,
+      email: data.email
+    });
 
   } catch (err) {
     console.log(err);
-    res.status(500).json({ approved: false });
+    res.status(500).send("Erro ao verificar acesso");
   }
 
 });

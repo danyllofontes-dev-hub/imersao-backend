@@ -128,6 +128,28 @@ app.get("/verificar-pagamento/:paymentId", async (req, res) => {
   }
 });
 
+app.get("/ultimo-acesso", async (req, res) => {
+
+  try {
+
+    const { data } = await supabase
+      .from("pagamentos")
+      .select("*")
+      .eq("status", "approved")
+      .order("criado_em", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!data) return res.json({ acesso:false });
+
+    res.json({ acesso:true });
+
+  } catch {
+    res.json({ acesso:false });
+  }
+
+});
+
 app.listen(3000, () =>
   console.log("Servidor rodando")
 );

@@ -1,34 +1,26 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Verificando pagamento...</title>
+<title>Confirmando pagamento...</title>
 </head>
 
 <body style="font-family:Arial;text-align:center;margin-top:80px;">
 
 <h2>✅ Pagamento recebido!</h2>
-<p>Estamos confirmando seu acesso...</p>
+<p>Confirmando acesso...</p>
 
 <script>
 
-const urlParams = new URLSearchParams(window.location.search);
-const paymentId = urlParams.get("payment_id");
+async function verificar(){
 
-async function verificar() {
-
-  if (!paymentId) {
-    document.body.innerHTML = "<h2>Pagamento não identificado.</h2>";
-    return;
-  }
-
-  const res = await fetch(`/verificar-pagamento/${paymentId}`);
+  const res = await fetch("/ultimo-acesso");
   const data = await res.json();
 
-  if (data.approved) {
-    window.location.href = "/acesso.html";
-  } else {
-    setTimeout(verificar, 3000);
+  if(data.acesso){
+    window.location.href="/acesso.html";
+  }else{
+    setTimeout(verificar,3000);
   }
 }
 

@@ -201,6 +201,34 @@ app.get("/pagamentos", (req, res) => {
 });
 
 // =============================
+// VERIFICAR PAGAMENTO (FRONTEND)
+// =============================
+app.get("/verificar-pagamento/:id", async (req, res) => {
+
+  try {
+
+    const paymentId = req.params.id;
+
+    const { data, error } = await supabase
+      .from("pagamentos")
+      .select("*")
+      .eq("payment_id", paymentId)
+      .single();
+
+    if (error || !data) {
+      return res.json({ approved: false });
+    }
+
+    res.json({ approved: true });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ approved: false });
+  }
+
+});
+
+// =============================
 // INICIAR SERVIDOR
 // =============================
 app.listen(3000, () => {

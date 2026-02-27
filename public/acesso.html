@@ -2,37 +2,91 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Acesso Liberado</title>
+
 <style>
+
 body{
+  margin:0;
   background:#000124;
   color:white;
+  font-family:Arial, sans-serif;
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
-  flex-direction:column;
-  font-family:Arial;
+  min-height:100vh;
+  padding:20px;
 }
+
+.container{
+  max-width:500px;
+  width:100%;
+  background:#06063a;
+  padding:30px 25px;
+  border-radius:16px;
+  text-align:center;
+  box-shadow:0 0 30px rgba(0,0,0,0.4);
+}
+
+h1{
+  font-size:clamp(24px,6vw,34px);
+  margin-bottom:10px;
+}
+
+p{
+  font-size:18px;
+  opacity:0.9;
+  margin-bottom:25px;
+}
+
 a{
+  display:block;
+  width:100%;
   background:#BAFF00;
-  padding:15px 25px;
-  border-radius:8px;
+  padding:18px;
+  border-radius:12px;
   text-decoration:none;
   color:#000;
   font-weight:bold;
+  font-size:18px;
+  transition:0.2s;
 }
+
+a:hover{
+  transform:scale(1.03);
+}
+
+@media (max-width:768px){
+  .container{
+    padding:25px 20px;
+  }
+
+  p{
+    font-size:16px;
+  }
+}
+
 </style>
 </head>
 
 <body>
 
+<div class="container">
+
 <h1>✅ Pagamento aprovado!</h1>
-<p>Entre agora no grupo exclusivo:</p>
+
+<p>
+Seu acesso foi liberado com sucesso.<br>
+Clique abaixo para entrar no grupo exclusivo:
+</p>
 
 <a href="https://chat.whatsapp.com/JW8FxnbG1GB4D0DPSOlH5K?mode=gi_t" target="_blank">
-Entrar no Grupo VIP
+🚀 Entrar no Grupo VIP
 </a>
+
+</div>
 
 </body>
 </html>

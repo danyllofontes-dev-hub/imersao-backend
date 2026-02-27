@@ -58,7 +58,10 @@ back_urls: {
       }
     });
 
-    res.json({ url: response.init_point });
+    res.json({
+  url: response.init_point,
+  preferenceId: response.id
+});
 
   } catch (err) {
     console.error(err);

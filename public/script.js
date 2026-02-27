@@ -145,6 +145,8 @@ async function pagar() {
 
     const data = await res.json();
 
+    //salva no navegador
+    localStorage.setItem("preference_id", data.preferenceId);
     window.location.href = data.url;
 
   } catch (err) {

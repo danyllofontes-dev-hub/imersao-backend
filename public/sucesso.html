@@ -1,27 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Confirmando pagamento...</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Verificando pagamento...</title>
+
+<style>
+
+body{
+  margin:0;
+  background:#000124;
+  color:white;
+  font-family:Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  text-align:center;
+}
+
+.container{
+  max-width:400px;
+}
+
+.loader{
+  margin:20px auto;
+  width:40px;
+  height:40px;
+  border:4px solid #ffffff30;
+  border-top:4px solid #BAFF00;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  100%{ transform:rotate(360deg); }
+}
+
+</style>
 </head>
 
-<body style="font-family:Arial;text-align:center;margin-top:80px;">
+<body>
 
-<h2>✅ Pagamento recebido!</h2>
-<p>Confirmando acesso...</p>
+<div class="container">
+
+<h2>🔍 Verificando pagamento...</h2>
+<div class="loader"></div>
+
+<p>Aguarde alguns segundos.</p>
+
+</div>
 
 <script>
 
+// pega payment_id da URL
+const params = new URLSearchParams(window.location.search);
+const paymentId = params.get("payment_id");
+
+if(!paymentId){
+  document.body.innerHTML = "<h2>Pagamento não identificado</h2>";
+}
+
+// verifica no backend
 async function verificar(){
 
-  const res = await fetch("/ultimo-acesso");
-  const data = await res.json();
+  try{
 
-  if(data.acesso){
-    window.location.href="/acesso.html";
-  }else{
-    setTimeout(verificar,3000);
+    const res = await fetch(`/verificar-pagamento/${paymentId}`);
+    const data = await res.json();
+
+    if(data.approved){
+      window.location.href = "/acesso.html";
+    }else{
+      setTimeout(verificar, 3000);
+    }
+
+  }catch{
+    setTimeout(verificar, 3000);
   }
+
 }
 
 verificar();

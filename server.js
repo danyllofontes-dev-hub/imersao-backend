@@ -51,7 +51,7 @@ notification_url: "https://twoframes.site/webhook",
 back_urls: {
   success: "https://twoframes.site/sucesso.html?source=mp",
   failure: "https://twoframes.site",
-  pending: "https://twoframes.site"
+  pending: "https://twoframes.site/pix.html"
 },
         auto_return: "approved",
         binary_mode: true

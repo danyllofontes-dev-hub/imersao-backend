@@ -202,6 +202,35 @@ app.get("/acesso/:paymentId", async (req, res) => {
 });
 
 // =============================
+// LIBERAR ACESSO AUTOMATICO
+// =============================
+app.get("/acesso/:paymentId", async (req, res) => {
+
+  try {
+
+    const paymentId = req.params.paymentId;
+
+    const { data, error } = await supabase
+      .from("pagamentos")
+      .select("*")
+      .eq("payment_id", paymentId)
+      .eq("status", "approved")
+      .single();
+
+    if (error || !data) {
+      return res.json({ acesso: false });
+    }
+
+    return res.json({ acesso: true });
+
+  } catch (err) {
+    console.log(err);
+    res.json({ acesso: false });
+  }
+
+});
+
+// =============================
 // INICIAR SERVIDOR
 // =============================
 app.listen(3000, () => {

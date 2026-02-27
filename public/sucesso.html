@@ -1,77 +1,48 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Confirmando pagamento...</title>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
-
-    .box {
-      max-width: 500px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Verificando pagamento...</title>
 </head>
 
-<body>
+<body style="font-family: Arial; text-align:center; margin-top:80px;">
 
-  <div class="box">
-    <h1>✅ Pagamento recebido</h1>
-    <p>Estamos confirmando seu acesso...</p>
-    <p>Aguarde alguns segundos.</p>
-  </div>
+<h2>🔎 Confirmando seu pagamento...</h2>
+<p>Aguarde alguns segundos.</p>
 
 <script>
 
-async function verificarPagamento() {
+const params = new URLSearchParams(window.location.search);
 
-  // pega parâmetros da URL
-  const params = new URLSearchParams(window.location.search);
+// Mercado Pago envia payment_id automaticamente
+const paymentId = params.get("payment_id");
 
-  const paymentId = params.get("payment_id");
-  const status = params.get("status");
-
-  // segurança básica
-  if (!paymentId || status !== "approved") {
-    document.body.innerHTML =
-      "<h2>Pagamento ainda não confirmado.</h2>";
-    return;
-  }
-
-  try {
-
-    const resposta = await fetch(
-      "https://imersao-backend.onrender.com/verificar-pagamento/" + paymentId
-    );
-
-    const data = await resposta.json();
-
-    if (data.approved) {
-
-      // ✅ LIBERA ACESSO
-      window.location.href = "acesso.html";
-
-    } else {
-
-      // tenta novamente
-      setTimeout(verificarPagamento, 5000);
-    }
-
-  } catch (error) {
-    console.log(error);
-  }
+if(!paymentId){
+  document.body.innerHTML = "<h2>Pagamento não encontrado.</h2>";
 }
 
-verificarPagamento();
+// consulta seu backend
+fetch(`https://imersao-backend.onrender.com/acesso/${paymentId}`)
+.then(res => res.json())
+.then(data => {
+
+  if(data.acesso){
+
+    // REDIRECIONA PARA AREA LIBERADA
+    window.location.href = "/acesso.html";
+
+  } else {
+
+    document.body.innerHTML = `
+      <h2>⏳ Aguardando confirmação...</h2>
+      <p>Se você pagou via PIX aguarde alguns segundos e atualize.</p>
+    `;
+  }
+
+})
+.catch(() => {
+  document.body.innerHTML = "<h2>Erro ao verificar pagamento.</h2>";
+});
 
 </script>
 

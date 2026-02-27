@@ -60,10 +60,10 @@ app.post("/criar-pagamento", async (req, res) => {
           "https://imersao-backend.onrender.com/webhook",
 
         back_urls: {
-        success: "https://superinfinite-nonenduring-myah.ngrok-free.app/sucesso.html?status=approved",
-        failure: "https://superinfinite-nonenduring-myah.ngrok-free.app",
-        pending: "https://superinfinite-nonenduring-myah.ngrok-free.app"
-},
+          success: "https://twoframes.site/sucesso.html?status=approved",
+          failure: "https://twoframes.site",
+          pending: "https://twoframes.site"
+        },
         auto_return: "approved"
       }
     });

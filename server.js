@@ -49,11 +49,12 @@ app.post("/criar-pagamento", async (req, res) => {
 notification_url: "https://twoframes.site/webhook",
 
 back_urls: {
-  success: "https://twoframes.site/sucesso.html",
+  success: "https://twoframes.site/sucesso.html?source=mp",
   failure: "https://twoframes.site",
   pending: "https://twoframes.site"
 },
-        auto_return: "approved"
+        auto_return: "approved",
+        binary_mode: true
       }
     });
 

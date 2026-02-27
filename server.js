@@ -60,7 +60,7 @@ app.post("/criar-pagamento", async (req, res) => {
           "https://imersao-backend.onrender.com/webhook",
 
         back_urls: {
-          success: "https://twoframes.site/sucesso.html?status=approved",
+          success: "https://twoframes.site/sucesso.html",
           failure: "https://twoframes.site",
           pending: "https://twoframes.site"
         },

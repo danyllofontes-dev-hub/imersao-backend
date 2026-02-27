@@ -5,44 +5,34 @@
 <title>Verificando pagamento...</title>
 </head>
 
-<body style="font-family: Arial; text-align:center; margin-top:80px;">
+<body style="font-family:Arial;text-align:center;margin-top:80px;">
 
-<h2>🔎 Confirmando seu pagamento...</h2>
-<p>Aguarde alguns segundos.</p>
+<h2>✅ Pagamento recebido!</h2>
+<p>Estamos confirmando seu acesso...</p>
 
 <script>
 
-const params = new URLSearchParams(window.location.search);
+const urlParams = new URLSearchParams(window.location.search);
+const paymentId = urlParams.get("payment_id");
 
-// Mercado Pago envia payment_id automaticamente
-const paymentId = params.get("payment_id");
+async function verificar() {
 
-if(!paymentId){
-  document.body.innerHTML = "<h2>Pagamento não encontrado.</h2>";
-}
-
-// consulta seu backend
-fetch(`https://imersao-backend.onrender.com/acesso/${paymentId}`)
-.then(res => res.json())
-.then(data => {
-
-  if(data.acesso){
-
-    // REDIRECIONA PARA AREA LIBERADA
-    window.location.href = "/acesso.html";
-
-  } else {
-
-    document.body.innerHTML = `
-      <h2>⏳ Aguardando confirmação...</h2>
-      <p>Se você pagou via PIX aguarde alguns segundos e atualize.</p>
-    `;
+  if (!paymentId) {
+    document.body.innerHTML = "<h2>Pagamento não identificado.</h2>";
+    return;
   }
 
-})
-.catch(() => {
-  document.body.innerHTML = "<h2>Erro ao verificar pagamento.</h2>";
-});
+  const res = await fetch(`/verificar-pagamento/${paymentId}`);
+  const data = await res.json();
+
+  if (data.approved) {
+    window.location.href = "/acesso.html";
+  } else {
+    setTimeout(verificar, 3000);
+  }
+}
+
+verificar();
 
 </script>
 

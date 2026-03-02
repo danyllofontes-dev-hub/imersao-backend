@@ -1,79 +1,3 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<title>Painel Admin</title>
-
-<style>
-
-body{
-  margin:0;
-  background:#000124;
-  font-family:Arial;
-  color:white;
-  padding:20px;
-}
-
-h1{
-  text-align:center;
-  margin-bottom:25px;
-}
-
-.card{
-  border-radius:12px;
-  padding:18px;
-  margin-bottom:14px;
-  background:#0d1135;
-  box-shadow:0 0 15px rgba(0,0,0,.3);
-}
-
-.lead{
-  border-left:6px solid #ffaa00;
-}
-
-.pago{
-  border-left:6px solid #00ff88;
-}
-
-.enviado{
-  opacity:.55;
-}
-
-button{
-  padding:10px 14px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  margin-top:10px;
-  margin-right:6px;
-  font-weight:bold;
-}
-
-.copy{
-  background:#BAFF00;
-}
-
-.done{
-  background:#00c853;
-  color:white;
-}
-
-.status{
-  font-weight:bold;
-  margin-top:6px;
-}
-
-</style>
-</head>
-
-<body>
-
-<h1>📋 Leads & Compradores</h1>
-
-<div id="lista"></div>
-
 <script>
 
 async function carregar(){
@@ -91,40 +15,44 @@ async function carregar(){
 
     const div = document.createElement("div");
 
-    div.className =
-      "card " +
-      (pago ? "pago":"lead") +
-      (c.grupo_enviado ? " enviado":"" );
+    // cores de status
+    if(c.grupo_enviado){
+      div.className="card enviado";
+    } else if(pago){
+      div.className="card";
+      div.style.borderLeft="8px solid #00c853"; // verde
+    } else {
+      div.className="card";
+      div.style.borderLeft="8px solid #ffc107"; // amarelo
+    }
 
     div.innerHTML = `
       <strong>${c.nome}</strong><br>
       📧 ${c.email}<br>
-      📱 ${c.telefone}
+      📱 ${c.telefone}<br><br>
 
-      <div class="status">
-        ${
-          pago
-          ? "🟢 Pagamento aprovado"
-          : "🟡 Lead capturado (não pagou)"
-        }
-      </div>
+      Status:
+      ${
+        c.grupo_enviado
+          ? "✅ Grupo enviado"
+          : pago
+            ? "🟢 Pago"
+            : "🟡 Aguardando pagamento"
+      }
+      <br><br>
+
+      <button class="copy"
+        onclick="copiar('${c.telefone}')">
+        Copiar WhatsApp
+      </button>
 
       ${
         pago && !c.grupo_enviado
-        ? `
-          <button class="copy"
-            onclick="copiar('${c.telefone}')">
-            Copiar WhatsApp
-          </button>
-
-          <button class="done"
+        ? `<button class="done"
             onclick="enviado(${c.id})">
             Marcar enviado
-          </button>
-        `
-        : pago && c.grupo_enviado
-          ? "✅ Grupo já enviado"
-          : ""
+           </button>`
+        : ""
       }
     `;
 
@@ -138,14 +66,12 @@ function copiar(numero){
 }
 
 async function enviado(id){
-  await fetch("/marcar-enviado/"+id,{method:"POST"});
+  await fetch("/marcar-enviado/"+id,{
+    method:"POST"
+  });
   carregar();
 }
 
 carregar();
-setInterval(carregar,8000);
 
 </script>
-
-</body>
-</html>

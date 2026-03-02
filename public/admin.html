@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Painel Admin</title>
+
+<style>
+
+body{
+  margin:0;
+  background:#000124;
+  font-family:Arial;
+  color:white;
+  padding:20px;
+}
+
+h1{
+  text-align:center;
+}
+
+.card{
+  background:white;
+  color:#000;
+  border-radius:12px;
+  padding:15px;
+  margin-bottom:12px;
+}
+
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  margin-right:6px;
+  font-weight:bold;
+}
+
+.copy{
+  background:#BAFF00;
+}
+
+.done{
+  background:#00c853;
+  color:white;
+}
+
+.enviado{
+  opacity:.5;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>📋 Compradores</h1>
+
+<div id="lista"></div>
+
+<script>
+
+async function carregar(){
+
+  const res = await fetch("/admin-clientes");
+  const clientes = await res.json();
+
+  const lista = document.getElementById("lista");
+  lista.innerHTML="";
+
+  clientes.forEach(c=>{
+
+    const pago =
+      c.pagamentos?.some(p=>p.status==="approved");
+
+    if(!pago) return;
+
+    const div = document.createElement("div");
+    div.className="card"+(c.grupo_enviado?" enviado":"");
+
+    div.innerHTML = `
+      <strong>${c.nome}</strong><br>
+      📧 ${c.email}<br>
+      📱 ${c.telefone}<br><br>
+
+      <button class="copy"
+        onclick="copiar('${c.telefone}')">
+        Copiar WhatsApp
+      </button>
+
+      ${
+        !c.grupo_enviado
+        ? `<button class="done"
+            onclick="enviado(${c.id})">
+            Marcar enviado
+           </button>`
+        : "✅ Grupo enviado"
+      }
+    `;
+
+    lista.appendChild(div);
+  });
+}
+
+function copiar(numero){
+  navigator.clipboard.writeText(numero);
+  alert("Número copiado!");
+}
+
+async function enviado(id){
+  await fetch("/marcar-enviado/"+id,{
+    method:"POST"
+  });
+  carregar();
+}
+
+carregar();
+
+</script>
+
+</body>
+</html>

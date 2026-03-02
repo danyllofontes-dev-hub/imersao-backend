@@ -155,6 +155,49 @@ app.get("/verificar-pagamento/:paymentId", async (req, res) => {
 });
 
 // =============================
+// LISTAR CLIENTES ADMIN
+// =============================
+app.get("/admin-clientes", async (req, res) => {
+
+  try {
+
+    const { data, error } = await supabase
+      .from("clientes")
+      .select(`
+        id,
+        nome,
+        email,
+        telefone,
+        grupo_enviado,
+        pagamentos(status)
+      `)
+      .order("id", { ascending:false });
+
+    if(error) throw error;
+
+    res.json(data);
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("erro");
+  }
+});
+
+
+// =============================
+// MARCAR COMO ENVIADO
+// =============================
+app.post("/marcar-enviado/:id", async (req,res)=>{
+
+  await supabase
+    .from("clientes")
+    .update({ grupo_enviado:true })
+    .eq("id", req.params.id);
+
+  res.sendStatus(200);
+});
+
+// =============================
 app.listen(3000, () =>
   console.log("Servidor rodando")
 );

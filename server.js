@@ -122,32 +122,49 @@ app.post("/webhook", async (req, res) => {
 });
 
 // =============================
-// ADMIN CLIENTES (TODOS)
+// LISTAR CLIENTES ADMIN (FIX DEFINITIVO)
 // =============================
 app.get("/admin-clientes", async (req, res) => {
 
   try {
 
-    const { data, error } = await supabase
-      .from("clientes")
-      .select(`
-        id,
-        nome,
-        email,
-        telefone,
-        grupo_enviado,
-        pagamentos(status)
-      `)
-      .order("id",{ ascending:false });
+    // 1️⃣ pega clientes
+    const { data: clientes, error: erroClientes } =
+      await supabase
+        .from("clientes")
+        .select("*")
+        .order("id", { ascending:false });
 
-    if(error) throw error;
+    if (erroClientes) throw erroClientes;
 
-    res.json(data);
+    // 2️⃣ pega pagamentos aprovados
+    const { data: pagamentos, error: erroPagamentos } =
+      await supabase
+        .from("pagamentos")
+        .select("*");
 
-  } catch(err){
-    console.log(err);
-    res.status(500).send("erro");
+    if (erroPagamentos) throw erroPagamentos;
+
+    // 3️⃣ junta manualmente
+    const resultado = clientes.map(cliente => {
+
+      const pagamentosCliente = pagamentos.filter(
+        p => String(p.cliente_id) === String(cliente.id)
+      );
+
+      return {
+        ...cliente,
+        pagamentos: pagamentosCliente
+      };
+    });
+
+    res.json(resultado);
+
+  } catch (err) {
+    console.log("ERRO ADMIN:", err);
+    res.status(500).send("erro admin");
   }
+
 });
 
 // =============================

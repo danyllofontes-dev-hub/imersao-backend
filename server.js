@@ -1,6 +1,5 @@
 const express = require("express");
 const path = require("path");
-const fs = require("fs");
 
 const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 const { createClient } = require("@supabase/supabase-js");
@@ -26,14 +25,33 @@ const supabase = createClient(
 );
 
 // =============================
-// CRIAR PAGAMENTO
+// CRIAR PAGAMENTO (COM FORM)
 // =============================
 app.post("/criar-pagamento", async (req, res) => {
   try {
 
+    const { nome, email, telefone } = req.body;
+
+    // 1️⃣ salva cliente
+    const { data: cliente, error } = await supabase
+      .from("clientes")
+      .insert({
+        nome,
+        email,
+        telefone
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.log(error);
+      return res.status(500).send("Erro ao salvar cliente");
+    }
+
     const preference = new Preference(client);
 
-    const externalRef = Date.now().toString();
+    // usamos id do cliente como referência
+    const externalRef = cliente.id.toString();
 
     const response = await preference.create({
       body: {
@@ -41,27 +59,31 @@ app.post("/criar-pagamento", async (req, res) => {
           title: "Imersão Do Zero ao Videomaker",
           quantity: 1,
           currency_id: "BRL",
-          unit_price: 1
+          unit_price: 149.9
         }],
+
+        payer: {
+          email: email
+        },
 
         external_reference: externalRef,
 
-notification_url: "https://twoframes.site/webhook",
+        notification_url: "https://twoframes.site/webhook",
 
-back_urls: {
-  success: "https://twoframes.site/sucesso.html?source=mp",
-  failure: "https://twoframes.site",
-  pending: "https://twoframes.site/pix.html"
-},
+        back_urls: {
+          success: "https://twoframes.site/sucesso.html?source=mp",
+          failure: "https://twoframes.site",
+          pending: "https://twoframes.site/pix.html"
+        },
+
         auto_return: "approved",
         binary_mode: true
       }
     });
 
     res.json({
-  url: response.init_point,
-  preferenceId: response.id
-});
+      url: response.init_point
+    });
 
   } catch (err) {
     console.error(err);
@@ -70,7 +92,7 @@ back_urls: {
 });
 
 // =============================
-// WEBHOOK
+// WEBHOOK (AGORA CORRETO)
 // =============================
 app.post("/webhook", async (req, res) => {
 
@@ -93,10 +115,11 @@ app.post("/webhook", async (req, res) => {
           payment_id: paymentInfo.id,
           status: "approved",
           email: paymentInfo.payer.email,
-          valor: paymentInfo.transaction_amount
+          valor: paymentInfo.transaction_amount,
+          cliente_id: paymentInfo.external_reference
         });
 
-      console.log("✅ Pagamento salvo");
+      console.log("✅ Pagamento vinculado ao cliente");
     }
 
     res.sendStatus(200);
@@ -108,7 +131,7 @@ app.post("/webhook", async (req, res) => {
 });
 
 // =============================
-// VERIFICAR ACESSO
+// VERIFICAR PAGAMENTO
 // =============================
 app.get("/verificar-pagamento/:paymentId", async (req, res) => {
 
@@ -131,28 +154,7 @@ app.get("/verificar-pagamento/:paymentId", async (req, res) => {
   }
 });
 
-app.get("/ultimo-acesso", async (req, res) => {
-
-  try {
-
-    const { data } = await supabase
-      .from("pagamentos")
-      .select("*")
-      .eq("status", "approved")
-      .order("criado_em", { ascending: false })
-      .limit(1)
-      .single();
-
-    if (!data) return res.json({ acesso:false });
-
-    res.json({ acesso:true });
-
-  } catch {
-    res.json({ acesso:false });
-  }
-
-});
-
+// =============================
 app.listen(3000, () =>
   console.log("Servidor rodando")
 );

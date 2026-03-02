@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Garantir minha vaga</title>
+
+<style>
+body{
+  background:#000124;
+  font-family:Arial;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+
+.container{
+  width:90%;
+  max-width:400px;
+  background:#0a0a3a;
+  padding:30px;
+  border-radius:12px;
+}
+
+h2{
+  text-align:center;
+}
+
+input{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
+}
+
+button{
+  width:100%;
+  margin-top:20px;
+  padding:15px;
+  background:#BAFF00;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  font-size:18px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Garantir minha vaga</h2>
+
+<form id="form">
+
+<input type="text" name="nome" placeholder="Seu nome" required>
+<input type="email" name="email" placeholder="Seu email" required>
+<input type="tel" name="telefone" placeholder="WhatsApp" required>
+
+<button type="submit">
+Continuar para pagamento
+</button>
+
+</form>
+
+</div>
+
+<script>
+
+document.getElementById("form").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+
+  const formData = new FormData(e.target);
+
+  const response = await fetch("/criar-pagamento",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body: JSON.stringify({
+      nome: formData.get("nome"),
+      email: formData.get("email"),
+      telefone: formData.get("telefone")
+    })
+  });
+
+  const data = await response.json();
+
+  window.location.href = data.url;
+});
+
+</script>
+
+</body>
+</html>

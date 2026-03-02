@@ -21,7 +21,7 @@ const client = new MercadoPagoConfig({
 // =============================
 const supabase = createClient(
   "https://orrrvsamxgadkmrteoke.supabase.co",
-  "SUA_SERVICE_ROLE_KEY_AQUI"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ycnJ2c2FteGdhZGttcnRlb2tlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjAzMTg5MiwiZXhwIjoyMDg3NjA3ODkyfQ.vQ0hevgJPGhNEggQYQNXexF8IsJcDCevPK4XxRutnkk"
 );
 
 // =============================

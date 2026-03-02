@@ -21,37 +21,32 @@ const client = new MercadoPagoConfig({
 // =============================
 const supabase = createClient(
   "https://orrrvsamxgadkmrteoke.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ycnJ2c2FteGdhZGttcnRlb2tlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjAzMTg5MiwiZXhwIjoyMDg3NjA3ODkyfQ.vQ0hevgJPGhNEggQYQNXexF8IsJcDCevPK4XxRutnkk"
+  "SUA_SERVICE_ROLE_KEY_AQUI"
 );
 
 // =============================
-// CRIAR PAGAMENTO (COM FORM)
+// CRIAR PAGAMENTO (FORM + LEAD)
 // =============================
 app.post("/criar-pagamento", async (req, res) => {
   try {
 
     const { nome, email, telefone } = req.body;
 
-    // 1️⃣ salva cliente
+    // salva lead imediatamente
     const { data: cliente, error } = await supabase
       .from("clientes")
       .insert({
         nome,
         email,
-        telefone
+        telefone,
+        grupo_enviado:false
       })
       .select()
       .single();
 
-    if (error) {
-      console.log(error);
-      return res.status(500).send("Erro ao salvar cliente");
-    }
+    if (error) throw error;
 
     const preference = new Preference(client);
-
-    // usamos id do cliente como referência
-    const externalRef = cliente.id.toString();
 
     const response = await preference.create({
       body: {
@@ -62,37 +57,33 @@ app.post("/criar-pagamento", async (req, res) => {
           unit_price: 149.9
         }],
 
-        payer: {
-          email: email
+        payer:{ email },
+
+        external_reference: cliente.id.toString(),
+
+        notification_url:"https://twoframes.site/webhook",
+
+        back_urls:{
+          success:"https://twoframes.site/sucesso.html?source=mp",
+          failure:"https://twoframes.site",
+          pending:"https://twoframes.site/pix.html"
         },
 
-        external_reference: externalRef,
-
-        notification_url: "https://twoframes.site/webhook",
-
-        back_urls: {
-          success: "https://twoframes.site/sucesso.html?source=mp",
-          failure: "https://twoframes.site",
-          pending: "https://twoframes.site/pix.html"
-        },
-
-        auto_return: "approved",
-        binary_mode: true
+        auto_return:"approved",
+        binary_mode:true
       }
     });
 
-    res.json({
-      url: response.init_point
-    });
+    res.json({ url: response.init_point });
 
   } catch (err) {
-    console.error(err);
+    console.log(err);
     res.status(500).send("Erro ao criar pagamento");
   }
 });
 
 // =============================
-// WEBHOOK (AGORA CORRETO)
+// WEBHOOK (VINCULA PAGAMENTO)
 // =============================
 app.post("/webhook", async (req, res) => {
 
@@ -113,13 +104,13 @@ app.post("/webhook", async (req, res) => {
         .from("pagamentos")
         .upsert({
           payment_id: paymentInfo.id,
-          status: "approved",
+          status:"approved",
           email: paymentInfo.payer.email,
           valor: paymentInfo.transaction_amount,
           cliente_id: paymentInfo.external_reference
         });
 
-      console.log("✅ Pagamento vinculado ao cliente");
+      console.log("✅ Pagamento aprovado e vinculado");
     }
 
     res.sendStatus(200);
@@ -131,31 +122,7 @@ app.post("/webhook", async (req, res) => {
 });
 
 // =============================
-// VERIFICAR PAGAMENTO
-// =============================
-app.get("/verificar-pagamento/:paymentId", async (req, res) => {
-
-  try {
-
-    const { data } = await supabase
-      .from("pagamentos")
-      .select("*")
-      .eq("payment_id", req.params.paymentId)
-      .eq("status", "approved")
-      .single();
-
-    if (!data)
-      return res.json({ approved: false });
-
-    res.json({ approved: true });
-
-  } catch {
-    res.json({ approved: false });
-  }
-});
-
-// =============================
-// LISTAR CLIENTES ADMIN
+// ADMIN CLIENTES (TODOS)
 // =============================
 app.get("/admin-clientes", async (req, res) => {
 
@@ -171,21 +138,20 @@ app.get("/admin-clientes", async (req, res) => {
         grupo_enviado,
         pagamentos(status)
       `)
-      .order("id", { ascending:false });
+      .order("id",{ ascending:false });
 
     if(error) throw error;
 
     res.json(data);
 
-  } catch (err) {
+  } catch(err){
     console.log(err);
     res.status(500).send("erro");
   }
 });
 
-
 // =============================
-// MARCAR COMO ENVIADO
+// MARCAR ENVIO DO GRUPO
 // =============================
 app.post("/marcar-enviado/:id", async (req,res)=>{
 
@@ -198,6 +164,4 @@ app.post("/marcar-enviado/:id", async (req,res)=>{
 });
 
 // =============================
-app.listen(3000, () =>
-  console.log("Servidor rodando")
-);
+app.listen(3000, ()=>console.log("Servidor rodando"));

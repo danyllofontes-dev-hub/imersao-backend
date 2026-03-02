@@ -18,21 +18,35 @@ body{
 
 h1{
   text-align:center;
+  margin-bottom:25px;
 }
 
 .card{
-  background:white;
-  color:#000;
   border-radius:12px;
-  padding:15px;
-  margin-bottom:12px;
+  padding:18px;
+  margin-bottom:14px;
+  background:#0d1135;
+  box-shadow:0 0 15px rgba(0,0,0,.3);
+}
+
+.lead{
+  border-left:6px solid #ffaa00;
+}
+
+.pago{
+  border-left:6px solid #00ff88;
+}
+
+.enviado{
+  opacity:.55;
 }
 
 button{
   padding:10px 14px;
   border:none;
-  border-radius:6px;
+  border-radius:8px;
   cursor:pointer;
+  margin-top:10px;
   margin-right:6px;
   font-weight:bold;
 }
@@ -46,8 +60,9 @@ button{
   color:white;
 }
 
-.enviado{
-  opacity:.5;
+.status{
+  font-weight:bold;
+  margin-top:6px;
 }
 
 </style>
@@ -55,7 +70,7 @@ button{
 
 <body>
 
-<h1>📋 Compradores</h1>
+<h1>📋 Leads & Compradores</h1>
 
 <div id="lista"></div>
 
@@ -74,28 +89,42 @@ async function carregar(){
     const pago =
       c.pagamentos?.some(p=>p.status==="approved");
 
-    if(!pago) return;
-
     const div = document.createElement("div");
-    div.className="card"+(c.grupo_enviado?" enviado":"");
+
+    div.className =
+      "card " +
+      (pago ? "pago":"lead") +
+      (c.grupo_enviado ? " enviado":"" );
 
     div.innerHTML = `
       <strong>${c.nome}</strong><br>
       📧 ${c.email}<br>
-      📱 ${c.telefone}<br><br>
+      📱 ${c.telefone}
 
-      <button class="copy"
-        onclick="copiar('${c.telefone}')">
-        Copiar WhatsApp
-      </button>
+      <div class="status">
+        ${
+          pago
+          ? "🟢 Pagamento aprovado"
+          : "🟡 Lead capturado (não pagou)"
+        }
+      </div>
 
       ${
-        !c.grupo_enviado
-        ? `<button class="done"
+        pago && !c.grupo_enviado
+        ? `
+          <button class="copy"
+            onclick="copiar('${c.telefone}')">
+            Copiar WhatsApp
+          </button>
+
+          <button class="done"
             onclick="enviado(${c.id})">
             Marcar enviado
-           </button>`
-        : "✅ Grupo enviado"
+          </button>
+        `
+        : pago && c.grupo_enviado
+          ? "✅ Grupo já enviado"
+          : ""
       }
     `;
 
@@ -109,13 +138,12 @@ function copiar(numero){
 }
 
 async function enviado(id){
-  await fetch("/marcar-enviado/"+id,{
-    method:"POST"
-  });
+  await fetch("/marcar-enviado/"+id,{method:"POST"});
   carregar();
 }
 
 carregar();
+setInterval(carregar,8000);
 
 </script>
 

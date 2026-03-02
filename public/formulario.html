@@ -7,49 +7,80 @@
 <title>Garantir minha vaga</title>
 
 <style>
+
+*{
+  box-sizing:border-box;
+}
+
 body{
+  margin:0;
   background:#000124;
-  font-family:Arial;
-  color:white;
+  font-family:Arial, sans-serif;
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
-  margin:0;
+  min-height:100vh;
+  padding:20px;
+  color:white;
 }
 
+/* CONTAINER CENTRAL */
 .container{
-  width:90%;
-  max-width:400px;
-  background:#0a0a3a;
-  padding:30px;
-  border-radius:12px;
+  width:100%;
+  max-width:420px;
 }
 
+/* BOLHA BRANCA */
+.card{
+  background:white;
+  color:#000;
+  border-radius:14px;
+  padding:28px 24px;
+  width:100%;
+}
+
+/* TITULO */
 h2{
   text-align:center;
+  margin-top:0;
+  margin-bottom:20px;
 }
 
+/* INPUTS */
 input{
   width:100%;
-  padding:14px;
-  margin-top:12px;
+  padding:16px;
+  margin-bottom:14px;
   border-radius:8px;
-  border:none;
+  border:1px solid #ccc;
   font-size:16px;
 }
 
+/* BOTÃO */
 button{
   width:100%;
-  margin-top:20px;
-  padding:15px;
-  background:#BAFF00;
+  padding:16px;
   border:none;
   border-radius:8px;
-  font-weight:bold;
+  background:#BAFF00;
+  color:#000;
   font-size:18px;
+  font-weight:bold;
   cursor:pointer;
+  transition:.2s;
 }
+
+button:hover{
+  transform:scale(1.02);
+}
+
+/* MOBILE PERFEITO */
+@media(max-width:480px){
+  .card{
+    padding:24px 18px;
+  }
+}
+
 </style>
 </head>
 
@@ -57,44 +88,95 @@ button{
 
 <div class="container">
 
-<h2>Garantir minha vaga</h2>
+  <div class="card">
 
-<form id="form">
+    <h2>Garantir minha vaga</h2>
 
-<input type="text" name="nome" placeholder="Seu nome" required>
-<input type="email" name="email" placeholder="Seu email" required>
-<input type="tel" name="telefone" placeholder="WhatsApp" required>
+    <form id="formPagamento">
 
-<button type="submit">
-Continuar para pagamento
-</button>
+      <!-- NOME -->
+      <input
+        type="text"
+        name="nome"
+        placeholder="Seu nome completo"
+        required
+        minlength="3"
+      >
 
-</form>
+      <!-- EMAIL VALIDADO -->
+      <input
+        type="email"
+        name="email"
+        placeholder="Seu melhor email"
+        required
+      >
+
+      <!-- TELEFONE VALIDADO -->
+      <input
+        type="tel"
+        name="telefone"
+        placeholder="WhatsApp (DDD + número)"
+        required
+        inputmode="numeric"
+        pattern="[0-9]{10,11}"
+        maxlength="11"
+      >
+
+      <button type="submit">
+        Continuar para pagamento
+      </button>
+
+    </form>
+
+  </div>
 
 </div>
 
 <script>
 
-document.getElementById("form").addEventListener("submit", async (e)=>{
+// ===========================
+// MÁSCARA TELEFONE BRASIL
+// ===========================
+const telefoneInput = document.querySelector('input[name="telefone"]');
+
+telefoneInput.addEventListener("input", () => {
+  telefoneInput.value = telefoneInput.value
+    .replace(/\D/g,'')
+    .slice(0,11);
+});
+
+// ===========================
+// ENVIO FORM
+// ===========================
+document
+.getElementById("formPagamento")
+.addEventListener("submit", async (e)=>{
+
   e.preventDefault();
 
-  const formData = new FormData(e.target);
+  const form = e.target;
 
-  const response = await fetch("/criar-pagamento",{
+  const data = {
+    nome: form.nome.value.trim(),
+    email: form.email.value.trim(),
+    telefone: form.telefone.value.trim()
+  };
+
+  // valida telefone BR
+  if(data.telefone.length < 10){
+    alert("Digite um WhatsApp válido com DDD.");
+    return;
+  }
+
+  const res = await fetch("/criar-pagamento",{
     method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body: JSON.stringify({
-      nome: formData.get("nome"),
-      email: formData.get("email"),
-      telefone: formData.get("telefone")
-    })
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(data)
   });
 
-  const data = await response.json();
+  const json = await res.json();
 
-  window.location.href = data.url;
+  window.location.href = json.url;
 });
 
 </script>

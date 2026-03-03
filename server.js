@@ -83,7 +83,7 @@ app.post("/criar-pagamento", async (req, res) => {
 });
 
 // =============================
-// WEBHOOK (VINCULA PAGAMENTO)
+// WEBHOOK (VINCULA PAGAMENTO CORRETAMENTE)
 // =============================
 app.post("/webhook", async (req, res) => {
 
@@ -100,17 +100,26 @@ app.post("/webhook", async (req, res) => {
 
     if (paymentInfo.status === "approved") {
 
+      const clienteId = paymentInfo.external_reference;
+
+      // busca email REAL do cliente (form)
+      const { data: cliente } = await supabase
+        .from("clientes")
+        .select("email")
+        .eq("id", clienteId)
+        .single();
+
       await supabase
         .from("pagamentos")
         .upsert({
           payment_id: paymentInfo.id,
-          status:"approved",
-          email: paymentInfo.payer.email,
+          status: "approved",
+          email: cliente.email, // ✅ email do FORM
           valor: paymentInfo.transaction_amount,
-          cliente_id: paymentInfo.external_reference
+          cliente_id: clienteId
         });
 
-      console.log("✅ Pagamento aprovado e vinculado");
+      console.log("✅ Pagamento aprovado vinculado ao cliente:", clienteId);
     }
 
     res.sendStatus(200);

@@ -124,10 +124,12 @@ async function carregar(){
 
       ${
         pago && !c.grupo_enviado
-        ? `<button class="done"
-            onclick="enviado(${c.id})">
-            Marcar enviado
-           </button>`
+        ? `
+        <button class="done"
+          onclick="enviarGrupo(${c.id})">
+          Enviar link do grupo
+        </button>
+        `
         : ""
       }
     `;
@@ -149,6 +151,22 @@ async function enviado(id){
 }
 
 carregar();
+
+async function enviarGrupo(id){
+
+  const res = await fetch("/gerar-whatsapp/"+id);
+  const data = await res.json();
+
+  // abre whatsapp já pronto
+  window.open(data.url, "_blank");
+
+  // marca como enviado automaticamente
+  await fetch("/marcar-enviado/"+id,{
+    method:"POST"
+  });
+
+  carregar();
+}
 
 </script>
 

@@ -181,4 +181,37 @@ app.post("/marcar-enviado/:id", async (req,res)=>{
 });
 
 // =============================
+// GERAR LINK WHATSAPP AUTOMÁTICO
+// =============================
+app.get("/gerar-whatsapp/:id", async (req,res)=>{
+
+  const { data: cliente } = await supabase
+    .from("clientes")
+    .select("*")
+    .eq("id", req.params.id)
+    .single();
+
+  if(!cliente)
+    return res.status(404).send("Cliente não encontrado");
+
+  const numero = "55" + cliente.telefone;
+
+  const mensagem = encodeURIComponent(
+`Olá ${cliente.nome}! 🎬
+
+Seu pagamento da *Imersão Do Zero ao Videomaker* foi confirmado ✅
+
+Aqui está o link do grupo exclusivo:
+
+👉 https://chat.whatsapp.com/SEU_LINK_DO_GRUPO
+
+Nos vemos lá 🚀`
+  );
+
+  const url = `https://wa.me/${numero}?text=${mensagem}`;
+
+  res.json({ url });
+});
+
+// =============================
 app.listen(3000, ()=>console.log("Servidor rodando"));

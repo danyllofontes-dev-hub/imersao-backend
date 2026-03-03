@@ -27,7 +27,7 @@ duration:2
 });
 
 /* CONTAGEM REGRESSIVA */
-const targetDate = new Date("March 22, 2026 20:00:00").getTime();
+const targetDate = new Date("April 12, 2026 20:00:00").getTime();
 
 function animateNumber(id,value){
 const el = document.getElementById(id);

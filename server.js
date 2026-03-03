@@ -54,7 +54,7 @@ app.post("/criar-pagamento", async (req, res) => {
           title: "Imersão Do Zero ao Videomaker",
           quantity: 1,
           currency_id: "BRL",
-          unit_price: 149.9
+          unit_price: 1
         }],
 
         payer:{ email },
